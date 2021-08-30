@@ -38,129 +38,141 @@ def runMain():
     filePath = askForFilePath()
     print(filePath)
     showImagePath(filePath)
+
     # load workbook
     print("Work in Progress...")
     wb = load_workbook(filePath)
-    sheet1 = wb.worksheets[0]
-    column = sheet1['A']  # Column
-    row_count = sheet1.max_row
-    column_list = [column[x].value for x in range(1, row_count)]
+    try:
+        wb.save(filePath)
+        sheet1 = wb.worksheets[0]
+        column = sheet1['A']  # Column
+        row_count = sheet1.max_row
+        column_list = [column[x].value for x in range(1, row_count)]
 
-    # remove None values
-    res = []
-    for val in column_list:
-        if val is not None:
-            res.append(val)
+        # remove None values
+        res = []
+        for val in column_list:
+            if val is not None:
+                res.append(val)
 
-    # remove whitespaces
-    column_list_withoutSpace = [x.strip(' ') for x in res]
+        # remove whitespaces
+        column_list_withoutSpace = [x.strip(' ') for x in res]
 
-    # loop through all ASINs
-    for s in range(len(column_list_withoutSpace)):
-        if BoxValue() == "US":
-            url = "https://www.amazon.com/dp/{0}{1}".format(column_list_withoutSpace[s], "?language=en_US")
-            print(url)
-        elif BoxValue() == "DE":
-            url = "https://www.amazon.de/dp/{0}{1}".format(column_list_withoutSpace[s], "?language=en_GB")
-            print(url)
-        elif BoxValue() == "FR":
-            url = "https://www.amazon.fr/dp/{}".format(column_list_withoutSpace[s])
-            print(url)
-        elif BoxValue() == "SG":
-            url = "https://www.amazon.sg/dp/{}".format(column_list_withoutSpace[s])
-            print(url)
-        elif BoxValue() == "JP":
-            url = "https://www.amazon.co.jp/dp/{0}{1}".format(column_list_withoutSpace[s], "?language=en_US")
-            print(url)
-        elif BoxValue() == "ES":
-            url = "https://www.amazon.es/dp/{}".format(column_list_withoutSpace[s])
-            print(url)
-        elif BoxValue() == "UK":
-            url = "https://www.amazon.co.uk/dp/{}".format(column_list_withoutSpace[s])
-            print(url)
-        elif BoxValue() == "CA":
-            url = "https://www.amazon.ca/dp/{}".format(column_list_withoutSpace[s])
-            print(url)
-        else:
-            url = "https://www.amazon.com/dp/{0}{1}".format(column_list_withoutSpace[s], "?language=en_CA")
-            print(url)
-        try:
-            page = urlopen(url)
-            soup = BeautifulSoup(page, 'html.parser')
-            stockStatus = soup.find('div', {"id": "availability"})
-            ratings = soup.find('div', {"id": "averageCustomerReviews"})
-            headline = soup.find('div', {"id": "titleSection"})
-            numRatings = soup.find('span', {"id": "acrCustomerReviewText"})
-            price = soup.find('span', {"id": "priceblock_ourprice"})
-            price2 = soup.find('div', {"id": "priceInsideBuyBox_feature_div"})
-            article = stockStatus.text.strip()
-
-            if not article:
-                sheet1.cell(row=s + 2, column=2).value = "Lost Buy Box/ 3P seller only"
-                try:
-                    sheet1.cell(row=s + 2, column=3).value = headline.find('span').text.strip()
-                except:
-                    sheet1.cell(row=s + 2, column=3).value = "Headline not found"
-                    print("Headline not found")
-                try:
-                    sheet1.cell(row=s + 2, column=4).value = price.text.strip()
-                except:
-                    sheet1.cell(row=s + 2, column=4).value = "Price not found"
-                    print("Price not found")
-                try:
-                    sheet1.cell(row=s + 2, column=5).value = ratings.find('span').text.strip()
-                except:
-                    sheet1.cell(row=s + 2, column=5).value = "Ratings not found"
-                    print("Ratings not found")
-                try:
-                    sheet1.cell(row=s + 2, column=6).value = numRatings.text.strip()
-                except:
-                    sheet1.cell(row=s + 2, column=6).value = "Number of reviews not found"
-                    print("Number of reviews not found")
-
-                print("{} - Lost Buy Box/ 3P seller only ".format(column_list_withoutSpace[s]))
-
+        # loop through all ASINs
+        for s in range(len(column_list_withoutSpace)):
+            if BoxValue() == "US":
+                url = "https://www.amazon.com/dp/{0}{1}".format(column_list_withoutSpace[s], "?language=en_US")
+                print(url)
+            elif BoxValue() == "DE":
+                url = "https://www.amazon.de/dp/{0}{1}".format(column_list_withoutSpace[s], "?language=en_GB")
+                print(url)
+            elif BoxValue() == "FR":
+                url = "https://www.amazon.fr/dp/{}".format(column_list_withoutSpace[s])
+                print(url)
+            elif BoxValue() == "SG":
+                url = "https://www.amazon.sg/dp/{}".format(column_list_withoutSpace[s])
+                print(url)
+            elif BoxValue() == "JP":
+                url = "https://www.amazon.co.jp/dp/{0}{1}".format(column_list_withoutSpace[s], "?language=en_US")
+                print(url)
+            elif BoxValue() == "ES":
+                url = "https://www.amazon.es/dp/{}".format(column_list_withoutSpace[s])
+                print(url)
+            elif BoxValue() == "UK":
+                url = "https://www.amazon.co.uk/dp/{}".format(column_list_withoutSpace[s])
+                print(url)
+            elif BoxValue() == "CA":
+                url = "https://www.amazon.ca/dp/{}".format(column_list_withoutSpace[s])
+                print(url)
             else:
+                url = "https://www.amazon.com/dp/{0}{1}".format(column_list_withoutSpace[s], "?language=en_US")
+                print(url)
+            try:
+                page = urlopen(url)
+                soup = BeautifulSoup(page, 'html.parser')
+                stockStatus = soup.find('div', {"id": "availability"})
+                ratings = soup.find('div', {"id": "averageCustomerReviews"})
+                headline = soup.find('div', {"id": "titleSection"})
+                numRatings = soup.find('span', {"id": "acrCustomerReviewText"})
+                price = soup.find('span', {"id": "priceblock_ourprice"})
+                price2 = soup.find('div', {"id": "priceInsideBuyBox_feature_div"})
+                article = stockStatus.text.strip()
 
-                if BoxValue() == "FR" or BoxValue() == "ES":
-                    sheet1.cell(row=s + 2, column=2).value = googleTranslator(article)
+                if not article:
+                    sheet1.cell(row=s + 2, column=2).value = "Lost Buy Box/ 3P seller only"
+                    try:
+                        sheet1.cell(row=s + 2, column=3).value = headline.find('span').text.strip()
+                    except:
+                        sheet1.cell(row=s + 2, column=3).value = "Headline not found"
+                        print("Headline not found")
+                    try:
+                        sheet1.cell(row=s + 2, column=4).value = price.text.strip()
+                    except:
+                        sheet1.cell(row=s + 2, column=4).value = "Price not found"
+                        print("Price not found")
+                    try:
+                        sheet1.cell(row=s + 2, column=5).value = ratings.find('span').text.strip()
+                    except:
+                        sheet1.cell(row=s + 2, column=5).value = "Ratings not found"
+                        print("Ratings not found")
+                    try:
+                        sheet1.cell(row=s + 2, column=6).value = numRatings.text.strip()
+                    except:
+                        sheet1.cell(row=s + 2, column=6).value = "Number of reviews not found"
+                        print("Number of reviews not found")
+
+                    print("{} - Lost Buy Box/ 3P seller only ".format(column_list_withoutSpace[s]))
+
                 else:
-                    sheet1.cell(row=s + 2, column=2).value = article
-                try:
-                    sheet1.cell(row=s + 2, column=3).value = headline.find('span').text.strip()
-                except:
-                    sheet1.cell(row=s + 2, column=3).value = "Headline not found"
-                    print("Headline not found")
-                try:
-                    sheet1.cell(row=s + 2, column=4).value = price.text.strip()
-                except:
-                    # try:
-                    sheet1.cell(row=s + 2, column=4).value = price2.find('span').text.strip()
-                    # except:
-                    #     sheet1.cell(row=s + 2, column=5).value = "Price not found"
-                    #     print("Price not found")
-                try:
-                    sheet1.cell(row=s + 2, column=5).value = ratings.find('span').text.strip()
-                except:
-                    sheet1.cell(row=s + 2, column=5).value = "Ratings not found"
-                    print("Ratings not found")
-                try:
-                    sheet1.cell(row=s + 2, column=6).value = numRatings.text.strip()
-                except:
-                    sheet1.cell(row=s + 2, column=6).value = "Number of reviews not found"
-                    print("Number of reviews not found")
 
-            print("{} - Status added in sheet ".format(column_list_withoutSpace[s]))
+                    if BoxValue() == "FR" or BoxValue() == "ES":
+                        sheet1.cell(row=s + 2, column=2).value = googleTranslator(article)
+                    else:
+                        sheet1.cell(row=s + 2, column=2).value = article
+                    try:
+                        sheet1.cell(row=s + 2, column=3).value = headline.find('span').text.strip()
+                    except:
+                        sheet1.cell(row=s + 2, column=3).value = "Headline not found"
+                        print("Headline not found")
+                    try:
+                        sheet1.cell(row=s + 2, column=4).value = price.text.strip()
+                    except:
+                        # try:
+                        sheet1.cell(row=s + 2, column=4).value = price2.find('span').text.strip()
+                        # except:
+                        #     sheet1.cell(row=s + 2, column=5).value = "Price not found"
+                        #     print("Price not found")
+                    try:
+                        sheet1.cell(row=s + 2, column=5).value = ratings.find('span').text.strip()
+                    except:
+                        sheet1.cell(row=s + 2, column=5).value = "Ratings not found"
+                        print("Ratings not found")
+                    try:
+                        sheet1.cell(row=s + 2, column=6).value = numRatings.text.strip()
+                    except:
+                        sheet1.cell(row=s + 2, column=6).value = "Number of reviews not found"
+                        print("Number of reviews not found")
 
+                print("{} - Status added in sheet ".format(column_list_withoutSpace[s]))
+
+            except:
+                sheet1.cell(row=s + 2, column=2).value = "ASIN Page not found"
+                print("Couldn't open this ASIN - {}".format(column_list_withoutSpace[s]))
+        try:
+            wb.save(filePath)
+            messagebox.showinfo("showinfo", "execution complete")
+            print("______________________________________")
+            print("______________________________________")
+            print("Work Done, Please check the excel file")
         except:
-            sheet1.cell(row=s + 2, column=2).value = "ASIN Page not found"
-            print("Couldn't open this ASIN - {}".format(column_list_withoutSpace[s]))
+            messagebox.showerror("Error", "Please close Scrapper.xslx file ")
+            print("Error, Please close Scrapper.xslx file  ")
 
-    wb.save(filePath)
-    messagebox.showinfo("showinfo", "execution complete")
-    print("______________________________________")
-    print("______________________________________")
-    print("Work Done, Please check the excel file")
+    except:
+        messagebox.showerror("Error", "Please close Scrapper.xslx file ")
+        print("Error, Please close Scrapper.xslx file  ")
+
+
 
 
 def grabAsins():
